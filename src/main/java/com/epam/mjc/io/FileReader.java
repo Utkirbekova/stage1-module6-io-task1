@@ -1,31 +1,32 @@
 package com.epam.mjc.io;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class FileReader {
 
-    public Profile getDataFromFile(File file){
-        List<String> datas = new ArrayList<>();
-        String n;
-        int i=0;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new java.io.FileReader(file));
-            while ((n = Objects.requireNonNull(bufferedReader).readLine()) != null) {
-                String[] split = n.split(" ");
-                datas.add(i,split[1]);
-                i++;
+    public Profile getDataFromFile(File file) {
+        Map<String, String> personalData = new HashMap<>();
+        Profile profile = new Profile();
+        String data;
+         try (InputStream in = new FileInputStream(file)) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                while ((data = reader.readLine()) != null){
+                    String[] keyValue = data.split(":");
+                    personalData.put(keyValue[0].trim(), keyValue[1].trim());
+                }
+            }catch (IOException e) {
+                e.printStackTrace();
             }
-            bufferedReader.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return new Profile(datas.get(0),Integer.parseInt(datas.get(1)),datas.get(2),Long.parseLong(datas.get(3)));
+
+
+        profile.setName(personalData.get("Name"));
+        profile.setAge(Integer.parseInt(personalData.get("Age")));
+        profile.setEmail(personalData.get("Email"));
+        profile.setPhone(Long.parseLong(personalData.get("Phone")));
+
+        return profile;
     }
 }
